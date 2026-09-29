@@ -8,7 +8,7 @@ Color players from green to red based on HP.
 
 ![Health Bar Mod](assets/health-bar-mod.webp)
 
-# [Weapon Animator](scripts/weapon-animator.js) v1.0.1
+# [Weapon Animator](scripts/weapon-animator.js) v1.0.2
 
 Animate weapon skins. Press `5` to open the menu. View a guide [here](guides/weapon-animator.md).
 

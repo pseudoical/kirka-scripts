@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Animate weapon skins. Press `5` to open the menu. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -163,9 +163,9 @@
             menu.appendChild(close);
 
             document.addEventListener("keydown", (event) => {
-                event.preventDefault();
-
                 if (event.key === settings.MENU_KEY) {
+                    event.preventDefault();
+
                     menu.hidden = !menu.hidden;
                     setSetting("MENU_HIDDEN", menu.hidden);
                 }
