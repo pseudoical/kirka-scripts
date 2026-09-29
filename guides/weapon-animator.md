@@ -55,7 +55,7 @@ The following guides assume that you have Krita installed and are familiar with 
 2. Open the image in Krita.
 3. On the left toolbar, click on the <img src="https://docs.krita.org/en/_images/similar_select_tool.svg" width="18"> icon.
 4. Click a brown area on the image. Some brown areas may not be selected.
-5. In that case, on the right toolbar, click the **Tool Options** tab, then adjust the threshold:
+5. In that case, on the right toolbar, click the **Tool Options** tab, then adjust the threshold:  
     <img src="https://docs.krita.org/en/_images/selections-similar-color-selection-options.png" width="350">
 6. Use the <img src="https://docs.krita.org/en/_images/similar_select_tool.svg" width="18"> tool again to select a brown area.
 7. Repeat the process as needed until all of the brown areas are selected.
@@ -71,7 +71,7 @@ See https://docs.krita.org/en/reference_manual/tools/similar_select.html for mor
 3. From the top menu, click **Filter**.
 4. From the drop-down menu, hover over **Colors**.
 5. Select **Color to Alpha...**.
-6. Adjust the color wheel to a dark orange:
+6. Adjust the color wheel to a dark orange:  
     <img src="assets/Krita_Color_to_Alpha.png" width="350">
 7. If necessary, adjust the threshold.
 8. Once most of the brown areas are transparent, click **OK**.
