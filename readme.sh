@@ -18,6 +18,8 @@ cat > "$OUTPUT" <<EOF
 
 A collection of unofficial [Kirka.io](https://kirka.io/) scripts designed to enhance and customize gameplay.
 
+If a script doesn't work, refresh the page and try again. For more help, message [@pseudoical](https://discord.com/users/1408292932624060426) on Discord.
+
 EOF
 
 {
