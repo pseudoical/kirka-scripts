@@ -8,6 +8,12 @@ Color players from green to red based on HP.
 
 ![Health Bar Mod](assets/health-bar-mod.webp)
 
+# [RGB Bullet Trails](scripts/rgb-bullet-trails.js) v1.0.0
+
+Color bullet trails. Press `6` to open the menu.
+
+![RGB Bullet Trails](assets/rgb-bullet-trails.webp)
+
 # [Weapon Animator](scripts/weapon-animator.js) v1.0.2
 
 Animate weapon skins. Press `5` to open the menu. View a guide [here](guides/weapon-animator.md).
