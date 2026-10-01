@@ -1,5 +1,8 @@
 # Kirka Scripts
 
+> [!CAUTION]
+> Use at your own risk and abide by Kirka's [Terms of Use](https://kirka.io/hub/terms). I am not responsible for any consequences that may result from your actions with these scripts.
+
 A collection of unofficial [Kirka.io](https://kirka.io/) scripts designed to enhance and customize gameplay.
 
 If a script doesn't work, refresh the page and try again. For more help, message [@pseudoical](https://discord.com/users/1408292932624060426) on Discord.
