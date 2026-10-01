@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      1.0.2
-// @description  Animate weapon skins. Press `5` to open the menu. View a guide [here](guides/weapon-animator.md).
+// @version      2.0.0
+// @description  Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
 // @icon         https://kirka.io/favicon.ico
@@ -12,8 +12,27 @@
 
 // @ts-check
 
+/**
+ * CHANGELOG:
+ *   - Separate animations for each weapon.
+ *   - Animations only affect default textures.
+ *   - Persist menu position when resetting.
+ */
+
+/**
+ * todo: This codebase needs a rewrite before adding more features.
+ *
+ * Systems are too tightly coupled, some typings are semantically incorrect,
+ * and there are several opportunities for performance improvements. Consider
+ * migrating to TypeScript to reduce JSDoc verbosity and improve type safety.
+ *
+ * TL;DR: The code is bad. Also, consider creating a UI kit for menus.
+ */
+
 (async function () {
     const console = { ...window.console };
+
+    const version = "2.0.0";
 
     /**
      * https://threejs.org/docs/#Scene
@@ -56,62 +75,244 @@
         return "name" in obj && "wmwWNMn" in obj;
     }
 
-    /** @type {ShaderMaterial["WwWnmM"]} */
-    let uniformsState = { u_time: { get value() { return performance.now() / 1000; } } };
+    const defaultTextures = /** @type {const} */ ({
+        "0bed9187.webp": "Revolver",
+        "6c8a6582.webp": "Shark",
+        "36d894bd.webp": "MAC-10",
+        "b658c822.webp": "M60",
+        "76c24e59.webp": "Bayonet",
+        "d97db214.webp": "LAR",
+        "b2a49027.webp": "VITA",
+        "1794de31.webp": "AR-9",
+        "212a85fe.webp": "Weatie",
+        "b3fc7981.webp": "SCAR",
+        "397a3f05.webp": "Tomahawk",
+    });
+
+    /**
+     * @typedef {typeof defaultTextures[keyof typeof defaultTextures]} Weapon
+     */
+
+    /**
+     * @param {string} url
+     * @returns {Weapon | null}
+     */
+    function defaultTextureToWeapon(url) {
+        for (const fileName in defaultTextures) {
+            if (url.endsWith(fileName)) {
+                return defaultTextures[fileName];
+            }
+        }
+        return null;
+    }
+
+    const globalId = "@pseudoical_Weapon_Animator";
+
+    const settingsKey = globalId;
+
+    /**
+     * @type {Record<string,
+     *     | { type: "color", default: {r: number, g: number, b: number} }
+     *     | { type: "checkbox", default: boolean }
+     *     | { type: "range", min: number, max: number, default: number }
+     *     | { type: "text", default: string, glslRepr?: Texture | null }
+     * >}
+     */
+    const defaultWeaponSettings = {
+        COLOR_A: { type: "color", default: { r: 1, g: 0, b: 0 } },
+        COLOR_B: { type: "color", default: { r: 0, g: 1, b: 0 } },
+        COLOR_C: { type: "color", default: { r: 0, g: 0, b: 1 } },
+
+        WAVE_ENABLED: { type: "checkbox", default: true },
+        WAVE_SPEED: { type: "range", min: 0, max: 2, default: 0.5 },
+        WAVE_STRENGTH: { type: "range", min: 0, max: 5, default: 0.5 },
+        WAVE_FREQUENCY: { type: "range", min: 0, max: 50, default: 1 },
+        WAVE_DIRECTION_X: { type: "range", min: -1, max: 1, default: 1 },
+        WAVE_DIRECTION_Y: { type: "range", min: -1, max: 1, default: 1 },
+
+        WAVE_1_ENABLED: { type: "checkbox", default: true },
+        WAVE_1_SPEED: { type: "range", min: 0, max: 15, default: 2 },
+        WAVE_1_STRENGTH: { type: "range", min: 0, max: 5, default: 0.3 },
+        WAVE_1_FREQUENCY: { type: "range", min: 0, max: 30, default: 8 },
+        WAVE_1_WIDTH: { type: "range", min: 0, max: 5, default: 1 },
+        WAVE_1_SOFTNESS: { type: "range", min: 0, max: 10, default: 2 },
+        WAVE_1_BRIGHTNESS: { type: "range", min: 0, max: 10, default: 3 },
+        WAVE_1_DIRECTION_X: { type: "range", min: -1, max: 1, default: 1 },
+        WAVE_1_DIRECTION_Y: { type: "range", min: -1, max: 1, default: 0 },
+
+        WAVE_2_ENABLED: { type: "checkbox", default: true },
+        WAVE_2_SPEED: { type: "range", min: 0, max: 15, default: 3 },
+        WAVE_2_STRENGTH: { type: "range", min: 0, max: 5, default: 1 },
+        WAVE_2_FREQUENCY: { type: "range", min: 0, max: 30, default: 5 },
+        WAVE_2_WIDTH: { type: "range", min: 0, max: 5, default: 2 },
+        WAVE_2_SOFTNESS: { type: "range", min: 0, max: 10, default: 3 },
+        WAVE_2_BRIGHTNESS: { type: "range", min: 0, max: 10, default: 4 },
+        WAVE_2_DIRECTION_X: { type: "range", min: -1, max: 1, default: 0 },
+        WAVE_2_DIRECTION_Y: { type: "range", min: -1, max: 1, default: 1 },
+
+        CELL_ENABLED: { type: "checkbox", default: true },
+        CELL_SPEED: { type: "range", min: 0, max: 10, default: 2 },
+        CELL_JITTER: { type: "range", min: 0, max: 0.5, default: 0.2 },
+        CELL_SIZE: { type: "range", min: 0, max: 10, default: 3 },
+
+        BLOB_ENABLED: { type: "checkbox", default: true },
+        BLOB_SIZE: { type: "range", min: 0, max: 0.5, default: 0.1 },
+        BLOB_SOFTNESS: { type: "range", min: 0, max: 10, default: 1 },
+        BLOB_BRIGHTNESS: { type: "range", min: 0, max: 10, default: 3 },
+        BLOB_SPIKES: { type: "range", min: 0, max: 10, default: 5 },
+
+        TEXTURE_MASK: { type: "text", default: "", glslRepr: /** @type {Texture | null} */ (null) },
+    };
 
     /** @type {{ type: "vec3" | "bool" | "float" | "sampler2D", name: string }[]} */
     const glslVariables = [{ type: "float", name: "u_time" }];
 
-    const globalId = "@pseudoical_Weapon_Animator";
+    /**
+     * @typedef {keyof typeof defaultWeaponSettings} WeaponSetting
+     */
+
+    /**
+     * @returns {typeof defaultSettings}
+     */
+    function createSettings() {
+        const weapons = {};
+
+        for (const weapon of Object.values(defaultTextures)) {
+            const weaponSettings = {};
+
+            for (const [key, val] of Object.entries(defaultWeaponSettings)) {
+                const value = val.default;
+                weaponSettings[key] = { value: typeof value === "object" ? structuredClone(value) : value };
+
+                if ("glslRepr" in val) {
+                    weaponSettings[key].glslRepr = val.glslRepr;
+                }
+            }
+
+            weapons[weapon] = weaponSettings;
+        }
+
+        /**
+         * @type {{
+         *     version: typeof version,
+         *     weapon: Weapon,
+         *     weapons: {[K in Weapon]: {[S in WeaponSetting]: {
+         *         value: typeof defaultWeaponSettings[S]["default"],
+         *         glslRepr?: Texture | null,
+         *     }}},
+         *     menuHidden: boolean,
+         *     menuKey: string,
+         * }}
+         */
+        const defaultSettings = {
+            version: version,
+            weapon: "LAR",
+            weapons: /** @type {any} */ (weapons),
+            menuHidden: false,
+            menuKey: "5",
+        };
+
+        try {
+            const value = localStorage.getItem(settingsKey);
+
+            if (value !== null) {
+                const parsed = JSON.parse(value);
+
+                if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+                    const { weapons: _, ...savedSettings } = parsed;
+
+                    if (parsed.version !== defaultSettings.version) {
+                        return defaultSettings;
+                    }
+
+                    Object.assign(defaultSettings, savedSettings);
+
+                    for (const weapon in weapons) {
+                        for (const prop in weapons[weapon]) {
+                            const saved = parsed.weapons?.[weapon]?.[prop];
+
+                            if (saved) {
+                                weapons[weapon][prop].value = saved.value;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch { }
+
+        return defaultSettings;
+    }
+
+    const settings = createSettings();
+
+    /**
+     * @returns {void}
+     */
+    function saveSettings() {
+        /**
+         * note: `settings` is a global runtime state and also stores GLSL
+         * representations. `glslRepr` is runtime-only and should not be
+         * persisted, so only extract `value` when saving to localStorage.
+         */
+
+        /**
+         * issue: Iterating through `settings` adds a small performance cost.
+         * Improving this would require a larger rewrite. However, the
+         * marginal cost is acceptable for now.
+         */
+
+        const savedSettings = { ...settings, weapons: {} };
+
+        for (const weapon in settings.weapons) {
+            savedSettings.weapons[weapon] = {};
+            const weaponSettings = settings.weapons[weapon];
+
+            for (const prop in weaponSettings) {
+                const value = weaponSettings[prop].value;
+                savedSettings.weapons[weapon][prop] = { value };
+            }
+        }
+
+        localStorage.setItem(settingsKey, JSON.stringify(savedSettings));
+    }
+
+    /**
+     * @template {keyof typeof settings} K
+     * @param {K} prop
+     * @param {typeof settings[K]} value
+     */
+    function setSetting(prop, value) {
+        settings[prop] = value;
+        saveSettings()
+    }
+
+    /**
+     * @template {WeaponSetting} K
+     * @param {K} prop
+     * @param {typeof settings.weapons[Weapon][K]["value"]} value
+     * @param {typeof settings.weapons[Weapon][K]["glslRepr"]} [glslRepr] undefined
+     */
+    function setWeaponSetting(prop, value, glslRepr = undefined) {
+        const weaponSettings = settings.weapons[settings.weapon];
+
+        weaponSettings[prop].value = value;
+
+        if (glslRepr !== undefined) {
+            weaponSettings[prop].glslRepr = glslRepr;
+        }
+
+        saveSettings();
+    }
+
+    /** @type {null | number} */
+    let menuOffsetLeft = null;
+    /** @type {null | number} */
+    let menuOffsetTop = null;
 
     /**
      * @param {TextureConstructor} Texture
      */
     function createMenuUI(Texture) {
-        const settingsKey = globalId;
-
-        /**
-         * @returns {{ [key: string]: unknown } & typeof defaultSettings}
-         */
-        function createSettings() {
-            const defaultSettings = { "MENU_HIDDEN": false, "MENU_KEY": "5" };
-
-            try {
-                const value = localStorage.getItem(settingsKey);
-
-                if (value !== null) {
-                    const parsed = JSON.parse(value);
-
-                    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-                        return Object.assign(defaultSettings, parsed);
-                    }
-                }
-            } catch { }
-
-            return defaultSettings;
-        }
-
-        const settings = createSettings();
-
-        /**
-         * @param {string} name
-         * @param {unknown} value
-         */
-        function setSetting(name, value) {
-            settings[name] = value;
-            localStorage.setItem(settingsKey, JSON.stringify(settings));
-        }
-
-        /**
-         * @param {string} name
-         * @param {unknown} uniformValue
-         * @param {unknown} [settingValue = uniformValue] uniformValue
-         */
-        function setUniform(name, uniformValue, settingValue = uniformValue) {
-            uniformsState[name] = { value: uniformValue };
-            setSetting(name, settingValue);
-        }
-
         /**
          * @returns {HTMLFieldSetElement}
          */
@@ -119,15 +320,18 @@
             const menu = document.createElement("fieldset");
             menu.id = `${globalId}_menu`;
             menu.style.position = "fixed";
-            menu.style.top = "50%";
-            menu.style.left = "124px";
+            menu.style.top = menuOffsetTop !== null ? `${menuOffsetTop}px` : "50%";
+            menu.style.left = menuOffsetLeft !== null ? `${menuOffsetLeft}px` : "125px";
             menu.style.transform = "translateY(-50%)";
             menu.style.zIndex = "9999";
             menu.style.background = "#222";
             menu.style.border = "1px solid #555";
             menu.style.color = "white";
             menu.style.font = "14px Noto Sans Mono, monospace";
-            menu.hidden = settings.MENU_HIDDEN;
+            menu.style.maxHeight = "80vh";
+            menu.style.overflowY = "auto";
+            menu.style.margin = "0";
+            menu.hidden = settings.menuHidden;
 
             const title = document.createElement("div");
             title.style.textAlign = "center";
@@ -157,17 +361,17 @@
 
             close.addEventListener("click", () => {
                 menu.hidden = true;
-                setSetting("MENU_HIDDEN", menu.hidden);
+                setSetting("menuHidden", menu.hidden);
             });
 
             menu.appendChild(close);
 
             document.addEventListener("keydown", (event) => {
-                if (event.key === settings.MENU_KEY) {
+                if (event.key === settings.menuKey) {
                     event.preventDefault();
 
                     menu.hidden = !menu.hidden;
-                    setSetting("MENU_HIDDEN", menu.hidden);
+                    setSetting("menuHidden", menu.hidden);
                 }
             });
 
@@ -192,6 +396,8 @@
 
             document.addEventListener("mouseup", () => {
                 isDragging = false;
+                menuOffsetLeft = menu.offsetLeft;
+                menuOffsetTop = menu.offsetTop;
             });
 
             document.body.appendChild(menu);
@@ -230,16 +436,19 @@
         }
 
         /**
-         * @param {string} name
-         * @param {{ r: number, g: number, b: number }} defaultValue
+         * @param {WeaponSetting} prop
+         * @returns {void}
          */
-        function createColorGL(name, defaultValue) {
-            glslVariables.push({ type: "vec3", name });
+        function createColorGL(prop) {
+            glslVariables.push({ type: "vec3", name: prop });
 
-            const value = /** @type {typeof defaultValue} */ (settings[name]) ?? defaultValue;
-            setUniform(name, value);
+            const value = settings.weapons[settings.weapon][prop].value;
 
-            const input = createInput(name, "color");
+            if (typeof value !== "object" || !("r" in value)) {
+                throw new Error("Wrong type");
+            }
+
+            const input = createInput(prop, "color");
             input.value = "#" + [value.r, value.g, value.b]
                 .map((color) => Math.round(color * 255).toString(16).padStart(2, "0"))
                 .join("");
@@ -255,60 +464,69 @@
                     return parseInt(string, 16) / 255;
                 }
 
-                setUniform(name, { r: color(1, 3), g: color(3, 5), b: color(5, 7) });
+                setWeaponSetting(prop, { r: color(1, 3), g: color(3, 5), b: color(5, 7) });
             });
         }
 
         /**
-         * @param {string} name
-         * @param {boolean} defaultValue
+         * @param {WeaponSetting} prop
+         * @returns {void}
          */
-        function createCheckboxGL(name, defaultValue) {
-            glslVariables.push({ type: "bool", name });
+        function createCheckboxGL(prop) {
+            glslVariables.push({ type: "bool", name: prop });
 
-            const value = /** @type {typeof defaultValue} */ (settings[name]) ?? defaultValue;
-            setUniform(name, value);
+            const value = settings.weapons[settings.weapon][prop].value;
 
-            const input = createInput(name, "checkbox");
+            if (typeof value !== "boolean") {
+                throw new Error("Wrong type");
+            }
+
+            const input = createInput(prop, "checkbox");
             input.checked = value;
 
             input.addEventListener("input", () => {
-                setUniform(name, input.checked);
+                setWeaponSetting(prop, input.checked);
             });
         }
 
         /**
-         * @param {string} name
+         * @param {WeaponSetting} prop
          * @param {number} min
          * @param {number} max
-         * @param {number} defaultValue
+         * @returns {void}
          */
-        function createRangeGL(name, min, max, defaultValue) {
-            glslVariables.push({ type: "float", name });
+        function createRangeGL(prop, min, max) {
+            glslVariables.push({ type: "float", name: prop });
 
-            const value = /** @type {typeof defaultValue} */ (settings[name]) ?? defaultValue;
-            setUniform(name, value);
+            const value = settings.weapons[settings.weapon][prop].value;
 
-            const input = createInput(name, "range");
+            if (typeof value !== "number") {
+                throw new Error("Wrong type");
+            }
+
+            const input = createInput(prop, "range");
             input.min = min.toString();
             input.max = max.toString();
             input.step = (max / 100).toString();
             input.value = value.toString();
 
             input.addEventListener("input", () => {
-                setUniform(name, Number(input.value));
+                setWeaponSetting(prop, Number(input.value));
             });
         }
 
         /**
-         * @param {string} name
-         * @param {string} defaultValue
+         * @param {WeaponSetting} prop
+         * @returns {void}
          */
-        function createTextGL(name, defaultValue) {
-            glslVariables.push({ type: "sampler2D", name });
+        function createTextGL(prop) {
+            glslVariables.push({ type: "sampler2D", name: prop });
 
-            const value = /** @type {typeof defaultValue} */ (settings[name]) ?? defaultValue;
-            setUniform(name, null, value);
+            const value = settings.weapons[settings.weapon][prop].value;
+
+            if (typeof value !== "string") {
+                throw new Error("Wrong type");
+            }
 
             /**
              * @param {string} value
@@ -325,11 +543,11 @@
                     texture.WMWwmnwN = false;
                     // .needsUpdate
                     texture.wwWMW = true;
-                    setUniform(name, texture, value);
+                    setWeaponSetting(prop, value, texture);
                 };
 
                 image.onerror = () => {
-                    setUniform(name, null, value);
+                    setWeaponSetting(prop, value, null);
                 };
 
                 image.src = value;
@@ -337,7 +555,7 @@
 
             setTexture(value);
 
-            const input = createInput(name, "text");
+            const input = createInput(prop, "text");
             input.value = value;
 
             input.addEventListener("input", () => {
@@ -345,53 +563,46 @@
             });
         }
 
-        createColorGL("COLOR_A", { r: 1, g: 0, b: 0 });
-        createColorGL("COLOR_B", { r: 0, g: 1, b: 0 });
-        createColorGL("COLOR_C", { r: 0, g: 0, b: 1 });
+        {
+            const select = document.createElement("select");
 
-        createCheckboxGL("WAVE_ENABLED", true);
-        createRangeGL("WAVE_SPEED", 0, 2, 0.5);
-        createRangeGL("WAVE_STRENGTH", 0, 5, 0.5);
-        createRangeGL("WAVE_FREQUENCY", 0, 50, 1);
-        createRangeGL("WAVE_DIRECTION_X", -1, 1, 1);
-        createRangeGL("WAVE_DIRECTION_Y", -1, 1, 1);
+            for (const key in defaultTextures) {
+                const option = document.createElement("option");
+                option.value = option.textContent = defaultTextures[key];
+                select.appendChild(option);
+            }
 
-        createCheckboxGL("WAVE_1_ENABLED", true);
-        createRangeGL("WAVE_1_SPEED", 0, 15, 2);
-        createRangeGL("WAVE_1_STRENGTH", 0, 5, 0.3);
-        createRangeGL("WAVE_1_FREQUENCY", 0, 30, 8);
-        createRangeGL("WAVE_1_WIDTH", 0, 5, 1);
-        createRangeGL("WAVE_1_SOFTNESS", 0, 10, 2);
-        createRangeGL("WAVE_1_BRIGHTNESS", 0, 10, 3);
-        createRangeGL("WAVE_1_DIRECTION_X", -1, 1, 1);
-        createRangeGL("WAVE_1_DIRECTION_Y", -1, 1, 0);
+            select.value = settings.weapon;
 
-        createCheckboxGL("WAVE_2_ENABLED", true);
-        createRangeGL("WAVE_2_SPEED", 0, 15, 3);
-        createRangeGL("WAVE_2_STRENGTH", 0, 5, 1);
-        createRangeGL("WAVE_2_FREQUENCY", 0, 30, 5);
-        createRangeGL("WAVE_2_WIDTH", 0, 5, 2);
-        createRangeGL("WAVE_2_SOFTNESS", 0, 10, 3);
-        createRangeGL("WAVE_2_BRIGHTNESS", 0, 10, 4);
-        createRangeGL("WAVE_2_DIRECTION_X", -1, 1, 0);
-        createRangeGL("WAVE_2_DIRECTION_Y", -1, 1, 1);
+            select.addEventListener("change", () => {
+                setSetting("weapon", /** @type {Weapon} */(select.value));
 
-        createCheckboxGL("CELL_ENABLED", true);
-        createRangeGL("CELL_SPEED", 0, 10, 2);
-        createRangeGL("CELL_JITTER", 0, 0.5, 0.2);
-        createRangeGL("CELL_SIZE", 0, 10, 3);
+                menu.remove();
+                createMenuUI(Texture);
+            });
 
-        createCheckboxGL("BLOB_ENABLED", true);
-        createRangeGL("BLOB_SIZE", 0, 0.5, 0.1);
-        createRangeGL("BLOB_SOFTNESS", 0, 10, 1);
-        createRangeGL("BLOB_BRIGHTNESS", 0, 10, 3);
-        createRangeGL("BLOB_SPIKES", 0, 10, 5);
+            menu.appendChild(select);
+        }
 
-        createTextGL("TEXTURE_MASK", "");
+        for (const [name, setting] of Object.entries(defaultWeaponSettings)) {
+            switch (setting.type) {
+                case "color":
+                    createColorGL(name);
+                    break;
+                case "checkbox":
+                    createCheckboxGL(name);
+                    break;
+                case "range":
+                    createRangeGL(name, setting.min, setting.max);
+                    break;
+                case "text":
+                    createTextGL(name);
+                    break;
+            }
+        }
 
         {
-            const settingName = "MENU_KEY";
-            const input = createInput(settingName, "text");
+            const input = createInput("MENU_KEY", "text");
 
             /**
              * @param {string} value
@@ -401,7 +612,7 @@
                 input.value = `KEY ${value.toUpperCase()}`;
             }
 
-            setInputValue(settings.MENU_KEY);
+            setInputValue(settings.menuKey);
 
             input.addEventListener("click", () => {
                 input.value = "Press any key...";
@@ -409,7 +620,7 @@
             });
 
             input.addEventListener("blur", () => {
-                setInputValue(settings.MENU_KEY);
+                setInputValue(settings.menuKey);
             });
 
             input.addEventListener("keydown", (event) => {
@@ -418,7 +629,7 @@
                 input.blur();
 
                 setInputValue(event.key);
-                setSetting(settingName, event.key);
+                setSetting("menuKey", event.key);
             });
         }
 
@@ -427,16 +638,16 @@
             input.value = "Reset";
 
             input.addEventListener("click", () => {
-                menu.remove();
+                const weapon = settings.weapon;
 
-                for (const key in settings) {
-                    if (key !== "MENU_KEY") {
-                        delete settings[key];
-                    }
+                for (const key in defaultWeaponSettings) {
+                    const v = defaultWeaponSettings[key].default;
+                    settings.weapons[weapon][key].value = typeof v === "object" ? structuredClone(v) : v;
                 }
 
-                localStorage.setItem(settingsKey, JSON.stringify(settings));
+                saveSettings();
 
+                menu.remove();
                 createMenuUI(Texture);
             });
         }
@@ -469,10 +680,12 @@
                 return callback();
             }
 
+            const image = texture.image;
+
             // Some textures use HTMLCanvasElements, such as the lobby
             // player's shadow, the in-game skybox, and player health bars.
             // However, weapon textures are loaded as HTMLImageElements.
-            const isImageElement = texture.image instanceof HTMLImageElement;
+            const isImageElement = image instanceof HTMLImageElement;
 
             // Enemy weapon texture images include "texture-mini.", whereas
             // the player's own textures include "texture.". However, after a
@@ -483,6 +696,12 @@
             const isPlayer = material.name.startsWith("player");
 
             if (!(isImageElement && isOwnTexture && !isPlayer)) {
+                return callback();
+            }
+
+            const weaponModel = defaultTextureToWeapon(image.src);
+
+            if (weaponModel === null) {
                 return callback();
             }
 
@@ -528,9 +747,18 @@
             material.wmwWNMn = (shader) => {
                 glslUniforms ??= glslVariables.map((v) => `uniform ${v.type} ${v.name};`).join("\n");
 
-                for (const name in uniformsState) {
-                    const uniforms = shader.WwWnmM;
-                    uniforms[name] = { get value() { return uniformsState[name].value; } };
+                const uniforms = shader.WwWnmM;
+                uniforms.u_time = { get value() { return performance.now() / 1000; } };
+
+                const weaponSettings = settings.weapons[weaponModel];
+
+                for (const prop in weaponSettings) {
+                    shader.WwWnmM[prop] = {
+                        get value() {
+                            const obj = weaponSettings[prop];
+                            return obj.glslRepr !== undefined ? obj.glslRepr : obj.value;
+                        },
+                    };
                 }
 
                 {
@@ -625,7 +853,9 @@ gl_FragColor = vec4(color, WmWNMwnwColor.a);
 `);
                 }
             };
-        } catch { }
+        } catch (err) {
+            console.error(err);
+        }
 
         return callback();
     };

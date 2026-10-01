@@ -2,6 +2,7 @@
 
 ## Table of Contents
 
+- [What to do if it's not working](#what-to-do-if-its-not-working)
 - [What is a texture mask?](#what-is-a-texture-mask)
 - [Set a texture mask](#set-a-texture-mask)
     - [With a Discord URL](#with-a-discord-url)
@@ -12,6 +13,14 @@
 - [Get texture images](#get-texture-images)
     - [From the Discord server](#from-the-discord-server)
     - [From the Developer Tools](#from-the-developer-tools)
+
+# What to do if it's not working
+
+If you only see a custom skin with no animations, switch to the default texture. Animations only render on the default texture.
+
+The script can sometimes be buggy, and animations may not render in the lobby. They should still work in the skin inspector and in-game. Refreshing the page usually fixes the issue.
+
+For more help, message [@pseudoical](https://discord.com/users/1408292932624060426) on Discord.
 
 # What is a texture mask?
 
