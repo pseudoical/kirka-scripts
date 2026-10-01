@@ -30,10 +30,6 @@ For more help, message [@pseudoical](https://discord.com/users/14082929326240604
 
 A texture mask is a regular texture image with parts cut out of it. The remaining texture covers sections of the weapon that you don't want to be visible in the animation.
 
-Currently, texture masks cannot be configured for individual weapons. If a mask is active when you switch weapons, it will also be applied to the newly equipped weapon.
-
-Because of this, it's best to leave the texture mask blank. It was added primarily for experimentation and to explore the limits of what is possible with the script.
-
 # Set a texture mask
 
 A texture mask accepts only two types of URLs, due to the website's limitations. The first is a Discord URL, which is temporary and will eventually expire. The second is a data URL, which does not expire.
