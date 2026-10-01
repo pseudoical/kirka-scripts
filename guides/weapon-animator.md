@@ -28,7 +28,7 @@ For more help, message [@pseudoical](https://discord.com/users/14082929326240604
 |:---:|:---:|:---:|
 | <img src="assets/LAR_texture.png" width="200"> | <img src="assets/LAR_texture_mask.png" width="200"> | <img src="assets/LAR_texture_mask_result.png" width="200">
 
-A texture mask is a regular texture image with parts cut out of it. The remaining texture covers sections of the weapon that you don't want to be visible in the animation.
+A texture mask is a regular texture image with varying levels of transparency. The remaining texture covers sections of the weapon that you don't want to be visible in the animation.
 
 # Set a texture mask
 
