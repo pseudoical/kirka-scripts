@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      2.0.0
+// @version      2.0.1
 // @description  Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -13,7 +13,12 @@
 // @ts-check
 
 /**
- * CHANGELOG:
+ * # CHANGELOG
+ *
+ * ## Version 2.0.1
+ *   - Fix texture mask coloration.
+ *
+ * ## Version 2.0.0
  *   - Separate animations for each weapon.
  *   - Animations only affect default textures.
  *   - Persist menu position when resetting.
@@ -844,9 +849,8 @@ if (BLOB_ENABLED) {
     color += blob * COLOR_C * BLOB_BRIGHTNESS;
 }
 
-vec4 mask = texture2D(TEXTURE_MASK, uv);
+vec4 mask = mapTexelToLinear(texture2D(TEXTURE_MASK, uv));
 
-color = mix(outgoingWnwWNwMm, color, 1.0);
 color = mix(color, mask.rgb, mask.a);
 
 gl_FragColor = vec4(color, WmWNMwnwColor.a);
