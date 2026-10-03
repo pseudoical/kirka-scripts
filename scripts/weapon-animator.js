@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      2.0.1
+// @version      2.0.2
 // @description  Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -14,6 +14,9 @@
 
 /**
  * # CHANGELOG
+ *
+ * ## Version 2.0.2
+ *   - Fix loading texture mask on refresh.
  *
  * ## Version 2.0.1
  *   - Fix texture mask coloration.
@@ -177,9 +180,10 @@
      */
 
     /**
+     * @param {TextureConstructor} Texture
      * @returns {typeof defaultSettings}
      */
-    function createSettings() {
+    function createSettings(Texture) {
         const weapons = {};
 
         for (const weapon of Object.values(defaultTextures)) {
@@ -237,7 +241,28 @@
                             const saved = parsed.weapons?.[weapon]?.[prop];
 
                             if (saved) {
-                                weapons[weapon][prop].value = saved.value;
+                                const obj = weapons[weapon][prop];
+                                obj.value = saved.value;
+
+                                if (prop === "TEXTURE_MASK") {
+                                    const texture = new Texture();
+                                    const image = new Image();
+                                    image.crossOrigin = "anonymous";
+
+                                    image.onload = () => {
+                                        texture.image = image;
+                                        // .generateMipmaps
+                                        texture.WMWwmnwN = false;
+                                        // .needsUpdate
+                                        texture.wwWMW = true;
+                                    };
+
+                                    image.onerror = () => { };
+
+                                    image.src = obj.value;
+
+                                    obj.glslRepr = texture;
+                                }
                             }
                         }
                     }
@@ -248,7 +273,8 @@
         return defaultSettings;
     }
 
-    const settings = createSettings();
+    /** @type {ReturnType<typeof createSettings>} */
+    let settings;
 
     /**
      * @returns {void}
@@ -318,6 +344,8 @@
      * @param {TextureConstructor} Texture
      */
     function createMenuUI(Texture) {
+        settings = createSettings(Texture);
+
         /**
          * @returns {HTMLFieldSetElement}
          */
