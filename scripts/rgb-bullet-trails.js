@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RGB Bullet Trails
 // @namespace    https://kirka.io/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Color bullet trails. Press `6` to open the menu.
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -11,6 +11,13 @@
 // ==/UserScript==
 
 // @ts-check
+
+/**
+ * # CHANGELOG
+ *
+ * ## Version 1.0.1
+ *   - Fix script not loading.
+ */
 
 (function () {
     const console = { ...window.console };
@@ -335,7 +342,11 @@
         }
     }
 
-    createMenuUI();
+    if (document.body) {
+        createMenuUI();
+    } else {
+        document.addEventListener("DOMContentLoaded", createMenuUI, { once: true });
+    }
 
     const window_WeakMap = window.WeakMap;
     // @ts-expect-error ts(2510)
