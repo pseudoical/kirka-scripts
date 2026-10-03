@@ -413,7 +413,6 @@
                 for (const name in uniformsState) {
                     const uniforms = shader.WwWnmM;
                     uniforms[name] = { get value() { return uniformsState[name].value; } };
-                    console.log(uniforms[name]);
                 }
 
                 {
