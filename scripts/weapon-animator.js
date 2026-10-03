@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      2.0.2
+// @version      2.1.0
 // @description  Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -14,6 +14,9 @@
 
 /**
  * # CHANGELOG
+ *
+ * ## Version 2.1.0
+ *   - Add support for older browsers.
  *
  * ## Version 2.0.2
  *   - Fix loading texture mask on refresh.
@@ -178,6 +181,16 @@
     /**
      * @typedef {keyof typeof defaultWeaponSettings} WeaponSetting
      */
+
+    /**
+     * A simplified `structuredClone` to support older browser versions.
+     * @template {object} T
+     * @param {T} obj
+     * @returns {T}
+     */
+    function structuredClone(obj) {
+        return Object.assign({}, obj);
+    }
 
     /**
      * @param {TextureConstructor} Texture

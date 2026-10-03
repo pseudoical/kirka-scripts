@@ -19,7 +19,7 @@ Color bullet trails. Press `6` to open the menu.
 
 ![RGB Bullet Trails](assets/rgb-bullet-trails.webp)
 
-# [Weapon Animator](scripts/weapon-animator.js) v2.0.2
+# [Weapon Animator](scripts/weapon-animator.js) v2.1.0
 
 Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 
