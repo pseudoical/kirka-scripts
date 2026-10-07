@@ -1,5 +1,13 @@
 # Weapon Animator Guide
 
+Browse a collection of pre-made texture masks and animation previews:
+
+- https://pseudoical.github.io/weapon-animator-res/
+
+Alternatively, the resources can be found here:
+
+- https://github.com/pseudoical/weapon-animator-res
+
 ## Table of Contents
 
 - [What to do if it's not working](#what-to-do-if-its-not-working)
