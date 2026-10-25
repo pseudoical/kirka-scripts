@@ -1,4 +1,4 @@
-# Weapon Animator Guide
+# Weapon Animator Guide <!-- omit in toc -->
 
 Browse a collection of pre-made texture masks and animation previews:
 
@@ -8,19 +8,19 @@ Alternatively, the resources can be found here:
 
 - https://github.com/pseudoical/weapon-animator-res
 
-## Table of Contents
+## Table of Contents <!-- omit in toc -->
 
 - [What to do if it's not working](#what-to-do-if-its-not-working)
 - [What is a texture mask?](#what-is-a-texture-mask)
 - [Set a texture mask](#set-a-texture-mask)
-    - [With a Discord URL](#with-a-discord-url)
-    - [With a data URL](#with-a-data-url)
+  - [With a Discord URL](#with-a-discord-url)
+  - [With a data URL](#with-a-data-url)
 - [Make a texture mask in Krita](#make-a-texture-mask-in-krita)
-    - [Using the Similar Color Selection Tool](#using-the-similar-color-selection-tool)
-    - [Using the Color to Alpha filter](#using-the-color-to-alpha-filter)
+  - [Using the Similar Color Selection Tool](#using-the-similar-color-selection-tool)
+  - [Using the Color to Alpha filter](#using-the-color-to-alpha-filter)
 - [Get texture images](#get-texture-images)
-    - [From the Discord server](#from-the-discord-server)
-    - [From the Developer Tools](#from-the-developer-tools)
+  - [From the Discord server](#from-the-discord-server)
+  - [From the Developer Tools](#from-the-developer-tools)
 
 # What to do if it's not working
 
@@ -32,9 +32,9 @@ For more help, message [@pseudoical](https://discord.com/users/14082929326240604
 
 # What is a texture mask?
 
-| Regular Texture | Texture Mask | Result
-|:---:|:---:|:---:|
-| <img src="assets/LAR_texture.png" width="200"> | <img src="assets/LAR_texture_mask.png" width="200"> | <img src="assets/LAR_texture_mask_result.png" width="200">
+|                Regular Texture                 |                    Texture Mask                     |                           Result                           |
+| :--------------------------------------------: | :-------------------------------------------------: | :--------------------------------------------------------: |
+| <img src="assets/LAR_texture.png" width="200"> | <img src="assets/LAR_texture_mask.png" width="200"> | <img src="assets/LAR_texture_mask_result.png" width="200"> |
 
 A texture mask is a regular texture image with varying levels of transparency. The remaining texture covers sections of the weapon that you don't want to be visible in the animation.
 
