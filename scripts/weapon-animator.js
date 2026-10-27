@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Weapon Animator
 // @namespace    https://kirka.io/
-// @version      3.0.0
+// @version      3.0.1
 // @description  Animate weapon skins. Press `5` to open the menu. Set all skins to their default textures. View a guide [here](guides/weapon-animator.md).
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -15,6 +15,10 @@
 /**
  * # CHANGELOG
  *
+ * ## v3.0.1
+ *
+ * - Update internal obfuscated names.
+ *
  * ## v3.0.0
  *
  * - Update UI look.
@@ -22,7 +26,7 @@
  * - Add `Import` button to import settings.
  */
 
-(async function () {
+(function () {
     const console = { ...window.console };
 
     const xhr = new XMLHttpRequest();
@@ -50,7 +54,7 @@
     const gui = new window.Tune({
         storageVersion: "3",
         title: "Weapon Animator",
-        scriptVersion: "3.0.0",
+        scriptVersion: "3.0.1",
         author: "@pseudoical",
         url: "https://github.com/pseudoical/kirka-scripts",
         css: {
@@ -131,9 +135,9 @@
                 image.onload = () => {
                     texture.image = image;
                     // .generateMipmaps
-                    texture.WMWwmnwN = false;
+                    texture.mwMWWwnN = false;
                     // .needsUpdate
-                    texture.wwWMW = true;
+                    texture.WwmMNn = true;
 
                     callback(texture);
                 };
@@ -185,11 +189,11 @@
     }
 
     /**
-     * https://threejs.org/docs/#Scene
+     * https://threejs.org/docs/#ShaderMaterial
      * @typedef {Object} ShaderMaterial
-     * @property {{ [key: string]: { value: unknown } }} WwWnmM .uniforms
+     * @property {{ [key: string]: { value: unknown } }} WNwnWM .uniforms
      *   -- https://threejs.org/docs/#ShaderMaterial.uniforms
-     * @property {string} wMnmWN .fragmentShader
+     * @property {string} wnWNwm .fragmentShader
      *   -- https://threejs.org/docs/#ShaderMaterial.fragmentShader
      */
 
@@ -197,9 +201,9 @@
      * https://threejs.org/docs/#Texture
      * @typedef {Object} Texture
      * @property {HTMLImageElement?} image
-     * @property {boolean} WMWwmnwN .generateMipmaps
+     * @property {boolean} mwMWWwnN .generateMipmaps
      *   -- https://threejs.org/docs/#Texture.generateMipmaps
-     * @property {boolean} wwWMW .needsUpdate
+     * @property {boolean} WwmMNn .needsUpdate
      *   -- https://threejs.org/docs/#Texture.needsUpdate
      */
 
@@ -211,9 +215,10 @@
      * https://threejs.org/docs/#MeshStandardMaterial
      * @typedef {Object} MeshStandardMaterial
      * @property {string} name
+     *   -- https://threejs.org/docs/#Material.name
      * @property {Texture?} map
      *   -- https://threejs.org/docs/#MeshStandardMaterial.map
-     * @property {(shaderobject: ShaderMaterial) => unknown} wmwWNMn .onBeforeRender
+     * @property {(shaderobject: ShaderMaterial) => unknown} wMmWWwNn .onBeforeCompile
      *   -- https://threejs.org/docs/#Material.onBeforeCompile
      */
 
@@ -222,7 +227,7 @@
      * @returns {obj is MeshStandardMaterial}
      */
     function isMeshStandardMaterial(obj) {
-        return "name" in obj && "wmwWNMn" in obj;
+        return "name" in obj && "wMmWWwNn" in obj;
     }
 
     /**
@@ -329,7 +334,7 @@
             }
 
             // .onBeforeCompile
-            material.wmwWNMn = (shader) => {
+            material.wMmWWwNn = (shader) => {
                 const uniforms = gui.generateUniforms({
                     scopes: [weaponModel],
                     definitions: {
@@ -340,13 +345,13 @@
                     },
                 });
 
-                Object.assign(shader.WwWnmM, uniforms);
+                Object.assign(shader.WNwnWM, uniforms);
 
                 {
-                    const fragmentShader = shader.wMnmWN;
+                    const fragmentShader = shader.wnWNwm;
                     const target = "void main() {";
                     const index = fragmentShader.indexOf(target);
-                    shader.wMnmWN = insert(fragmentShader, index, `
+                    shader.wnWNwm = insert(fragmentShader, index, `
 ${gui.glslUniforms(uniforms)}
 
 float random(vec2 co) {
@@ -372,10 +377,10 @@ float waveLine(vec2 p, vec2 direction, float frequency, float speed,
 `);
                 }
                 {
-                    const fragmentShader = shader.wMnmWN;
-                    const target = "gl_FragColor = vec4( outgoingWnwWNwMm, WmWNMwnwColor.a );"
-                    shader.wMnmWN = replace(fragmentShader, target, `
-vec2 uv = WwnMmW;
+                    const fragmentShader = shader.wnWNwm;
+                    const target = "gl_FragColor = vec4( outgoingmwwWnM, WWmnNMColor.a );"
+                    shader.wnWNwm = replace(fragmentShader, target, `
+vec2 uv = WnwMWmw;
 vec2 p = uv * 2.0 - 1.0;
 float time = u_time;
 
@@ -429,7 +434,7 @@ vec4 mask = mapTexelToLinear(texture2D(TEXTURE_MASK, uv));
 
 color = mix(color, mask.rgb, mask.a);
 
-gl_FragColor = vec4(color, WmWNMwnwColor.a);
+gl_FragColor = vec4(color, WWmnNMColor.a);
 `);
                 }
             };
