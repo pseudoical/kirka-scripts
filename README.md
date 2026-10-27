@@ -15,7 +15,7 @@ Crafting animations demo. Press `7` to open the menu.
 
 # [Health Bar Mod](scripts/health-bar-mod.js) v1.0.0
 
-Color players from green to red based on HP.
+**Currently broken. Fix work in progress.** ~~Color players from green to red based on HP.~~
 
 ![Health Bar Mod](assets/health-bar-mod.webp)
 

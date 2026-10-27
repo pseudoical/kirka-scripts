@@ -2,7 +2,7 @@
 // @name         Health Bar Mod
 // @namespace    https://kirka.io/
 // @version      1.0.0
-// @description  Color players from green to red based on HP.
+// @description  **Currently broken. Fix work in progress.** ~~Color players from green to red based on HP.~~
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
 // @icon         https://kirka.io/favicon.ico
