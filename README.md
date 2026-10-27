@@ -7,6 +7,12 @@ A collection of unofficial [Kirka.io](https://kirka.io/) scripts designed to enh
 
 If a script doesn't work, refresh the page and try again. For more help, message [@pseudoical](https://discord.com/users/1408292932624060426) on Discord.
 
+# [Craft Animator Demo](scripts/craft-animator-demo.js) v1.0.0
+
+Crafting animations demo. Press `7` to open the menu.
+
+![Craft Animator Demo](assets/craft-animator-demo.webp)
+
 # [Health Bar Mod](scripts/health-bar-mod.js) v1.0.0
 
 Color players from green to red based on HP.
