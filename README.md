@@ -19,7 +19,7 @@ Color players from green to red based on HP.
 
 ![Health Bar Mod](assets/health-bar-mod.webp)
 
-# [RGB Bullet Trails](scripts/rgb-bullet-trails.js) v2.0.0
+# [RGB Bullet Trails](scripts/rgb-bullet-trails.js) v2.0.1
 
 Color bullet trails. Press `6` to open the menu.
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RGB Bullet Trails
 // @namespace    https://kirka.io/
-// @version      2.0.0
+// @version      2.0.1
 // @description  Color bullet trails. Press `6` to open the menu.
 // @author       https://github.com/pseudoical
 // @match        https://kirka.io/*
@@ -14,6 +14,10 @@
 
 /**
  * # CHANGELOG
+ *
+ * ## v2.0.1
+ *
+ * - Update internal obfuscated names.
  *
  * ## v2.0.0
  *
@@ -35,7 +39,7 @@
     const gui = new window.Tune({
         storageVersion: "2",
         title: "RGB Bullet Trails",
-        scriptVersion: "2.0.0",
+        scriptVersion: "2.0.1",
         author: "@pseudoical",
         url: "https://github.com/pseudoical/kirka-scripts",
         css: {
@@ -63,11 +67,11 @@
     }
 
     /**
-     * https://threejs.org/docs/#Scene
+     * https://threejs.org/docs/#ShaderMaterial
      * @typedef {Object} ShaderMaterial
-     * @property {{ [key: string]: { value: unknown } }} WwWnmM .uniforms
+     * @property {{ [key: string]: { value: unknown } }} WNwnWM .uniforms
      *   -- https://threejs.org/docs/#ShaderMaterial.uniforms
-     * @property {string} wMnmWN .fragmentShader
+     * @property {string} wnWNwm .fragmentShader
      *   -- https://threejs.org/docs/#ShaderMaterial.fragmentShader
      */
 
@@ -76,7 +80,7 @@
      * @returns {obj is ShaderMaterial}
      */
     function isShaderMaterial(obj) {
-        return "WwWnmM" in obj && "wMnmWN" in obj;
+        return "WNwnWM" in obj && "wnWNwm" in obj;
     }
 
     const window_WeakMap = window.WeakMap;
@@ -98,7 +102,7 @@
                 const shader = obj;
 
                 const fragmentTarget = `gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha);`;
-                const fragmentShader = shader.wMnmWN;
+                const fragmentShader = shader.wnWNwm;
 
                 if (!fragmentShader.includes(fragmentTarget)) {
                     return callback();
@@ -140,13 +144,13 @@
                 }
 
                 const uniforms = gui.generateUniforms();
-                Object.assign(shader.WwWnmM, uniforms);
+                Object.assign(shader.WNwnWM, uniforms);
 
                 {
-                    const fragmentShader = shader.wMnmWN;
+                    const fragmentShader = shader.wnWNwm;
                     const target = `void main() {`;
                     const index = fragmentShader.indexOf(target);
-                    shader.wMnmWN = insert(fragmentShader, index, `
+                    shader.wnWNwm = insert(fragmentShader, index, `
 uniform float uTime; // uTime comes from the vertex shader.
 ${gui.glslUniforms(uniforms)}
 
@@ -178,8 +182,8 @@ vec3 HSVtoRGB(float h, float s, float v) {
                 }
 
                 {
-                    const fragmentShader = shader.wMnmWN;
-                    shader.wMnmWN = replace(fragmentShader, fragmentTarget, `
+                    const fragmentShader = shader.wnWNwm;
+                    shader.wnWNwm = replace(fragmentShader, fragmentTarget, `
 vec3 color = COLOR;
 
 if (RGB_ENABLED) {
